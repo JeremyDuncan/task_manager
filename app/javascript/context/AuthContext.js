@@ -27,7 +27,9 @@ const AuthProvider = ({ children }) => {
       });
   }, []);
 
-  const login = () => setIsAuthenticated(true);
+  const login = () => {
+    setIsAuthenticated(true);
+  };
 
   const logout = () => {
     fetch('/users/sign_out', {
@@ -42,6 +44,7 @@ const AuthProvider = ({ children }) => {
       .then(response => {
         if (response.ok) {
           setIsAuthenticated(false);
+          window.location.href = '/'; // Redirect to root upon logout
         } else {
           console.error('Logout failed');
         }

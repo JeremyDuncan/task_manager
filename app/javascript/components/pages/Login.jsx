@@ -8,35 +8,40 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
     const navigate = useNavigate();
     const { login } = useContext(AuthContext);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        const form = document.createElement('form');
-        form.action = '/users/sign_in';
-        form.method = 'post';
-        form.style.display = 'none';
+        setError(''); // Clear existing errors
 
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        const authenticityToken = document.createElement('input');
-        authenticityToken.name = 'authenticity_token';
-        authenticityToken.value = csrfToken;
-        form.appendChild(authenticityToken);
 
-        const emailInput = document.createElement('input');
-        emailInput.name = 'user[email]';
-        emailInput.value = email;
-        form.appendChild(emailInput);
+        try {
+            const response = await fetch('/users/sign_in', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken,
+                },
+                body: JSON.stringify({
+                    user: {
+                        email: email,
+                        password: password,
+                    }
+                })
+            });
 
-        const passwordInput = document.createElement('input');
-        passwordInput.name = 'user[password]';
-        passwordInput.value = password;
-        form.appendChild(passwordInput);
-
-        document.body.appendChild(form);
-        form.submit();
+            if (response.ok) {
+                login(); // Call login function from context
+                navigate('/tasks'); // Redirect to /tasks upon successful login
+            } else {
+                const data = await response.json();
+                setError(data.error || 'Invalid email or password');
+            }
+        } catch (error) {
+            setError('Login failed. Please try again.');
+        }
     };
 
     return (
@@ -45,7 +50,6 @@ const Login = () => {
                 Sign In
             </Typography>
             {error && <Alert severity="error">{error}</Alert>}
-            {success && <Alert severity="success">{success}</Alert>}
             <form onSubmit={handleSubmit}>
                 <TextField
                     label="Email"

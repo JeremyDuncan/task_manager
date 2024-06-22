@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
+import { BrowserRouter as Router, Route, Routes, Link, Navigate, useNavigate } from 'react-router-dom';
 import TaskList from './pages/TaskList';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -9,6 +9,12 @@ import { AppBar, Toolbar, Button, Container } from '@mui/material';
 import { AuthProvider, AuthContext } from '../context/AuthContext';
 
 const theme = createTheme();
+
+const PrivateRoute = ({ children }) => {
+    const { isAuthenticated } = useContext(AuthContext);
+
+    return isAuthenticated ? children : <Navigate to="/login" />;
+};
 
 const Root = ({ initialTasks = [], initialCategories = [], initialTags = [] }) => {
     const [tasks, setTasks] = useState(initialTasks);
@@ -34,36 +40,46 @@ const Root = ({ initialTasks = [], initialCategories = [], initialTags = [] }) =
             .catch(error => console.error('Error fetching tags:', error));
     };
 
+    const AuthWithNavigate = () => {
+        const navigate = useNavigate();
+        const { isAuthenticated, logout } = useContext(AuthContext);
+
+        const handleLogout = () => {
+            logout();
+            navigate('/');
+        };
+
+        return (
+            <>
+                {!isAuthenticated && <Button color="inherit" component={Link} to="/login">Sign In</Button>}
+                {!isAuthenticated && <Button color="inherit" component={Link} to="/signup">Sign Up</Button>}
+                {isAuthenticated && (
+                    <>
+                        <Button color="inherit" onClick={handleLogout}>Log Out</Button>
+                        <Button color="inherit" component={Link} to="/tasks">Task List</Button>
+                        <Button color="inherit" component={Link} to="/tasks/new">New Task</Button>
+                    </>
+                )}
+            </>
+        );
+    };
+
     return (
         <ThemeProvider theme={theme}>
             <AuthProvider>
                 <Router>
                     <AppBar position="static">
                         <Toolbar>
-                            <AuthContext.Consumer>
-                                {({ isAuthenticated, logout }) => (
-                                    <>
-                                        {!isAuthenticated && <Button color="inherit" component={Link} to="/login">Sign In</Button>}
-                                        {!isAuthenticated && <Button color="inherit" component={Link} to="/signup">Sign Up</Button>}
-                                        {isAuthenticated && (
-                                            <>
-                                                <Button color="inherit" onClick={logout}>Log Out</Button>
-                                                <Button color="inherit" component={Link} to="/tasks">Task List</Button>
-                                                <Button color="inherit" component={Link} to="/tasks/new">New Task</Button>
-                                            </>
-                                        )}
-                                    </>
-                                )}
-                            </AuthContext.Consumer>
+                            <AuthWithNavigate />
                         </Toolbar>
                     </AppBar>
                     <Container>
                         <Routes>
                             <Route path="/login" element={<Login />} />
                             <Route path="/signup" element={<Signup />} />
-                            <Route path="/tasks" element={<TaskList tasks={tasks} />} />
-                            <Route path="/tasks/new" element={<TaskForm categories={categories} tags={tags} />} />
-                            <Route path="/tasks/:id/edit" element={<TaskForm categories={categories} tags={tags} />} />
+                            <Route path="/tasks" element={<PrivateRoute><TaskList tasks={tasks} /></PrivateRoute>} />
+                            <Route path="/tasks/new" element={<PrivateRoute><TaskForm categories={categories} tags={tags} /></PrivateRoute>} />
+                            <Route path="/tasks/:id/edit" element={<PrivateRoute><TaskForm categories={categories} tags={tags} /></PrivateRoute>} />
                             <Route path="/" element={<Login />} /> {/* Default route */}
                         </Routes>
                     </Container>
