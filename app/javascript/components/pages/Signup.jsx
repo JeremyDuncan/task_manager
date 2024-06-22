@@ -1,12 +1,13 @@
-// app/javascript/components/Login.jsx
+// app/javascript/components/Signup.jsx
 import React, { useState, useContext } from 'react';
 import { Container, Typography, TextField, Button, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import { AuthContext } from '../../context/AuthContext';
 
-const Login = () => {
+const Signup = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [passwordConfirmation, setPasswordConfirmation] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const navigate = useNavigate();
@@ -15,7 +16,7 @@ const Login = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         const form = document.createElement('form');
-        form.action = '/users/sign_in';
+        form.action = '/users';
         form.method = 'post';
         form.style.display = 'none';
 
@@ -35,6 +36,11 @@ const Login = () => {
         passwordInput.value = password;
         form.appendChild(passwordInput);
 
+        const passwordConfirmationInput = document.createElement('input');
+        passwordConfirmationInput.name = 'user[password_confirmation]';
+        passwordConfirmationInput.value = passwordConfirmation;
+        form.appendChild(passwordConfirmationInput);
+
         document.body.appendChild(form);
         form.submit();
     };
@@ -42,7 +48,7 @@ const Login = () => {
     return (
         <Container>
             <Typography variant="h4" component="h1" gutterBottom>
-                Sign In
+                Sign Up
             </Typography>
             {error && <Alert severity="error">{error}</Alert>}
             {success && <Alert severity="success">{success}</Alert>}
@@ -63,12 +69,20 @@ const Login = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                 />
+                <TextField
+                    label="Confirm Password"
+                    type="password"
+                    fullWidth
+                    margin="normal"
+                    value={passwordConfirmation}
+                    onChange={(e) => setPasswordConfirmation(e.target.value)}
+                />
                 <Button variant="contained" color="primary" type="submit">
-                    Sign In
+                    Sign Up
                 </Button>
             </form>
         </Container>
     );
 };
 
-export default Login;
+export default Signup;

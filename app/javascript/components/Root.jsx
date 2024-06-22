@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
-import TaskList from './TaskList';
-import Login from './Login';
-import Signup from './Signup';
-import TaskForm from './TaskForm';
+import TaskList from './pages/TaskList';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import TaskForm from './forms/TaskForm';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AppBar, Toolbar, Button, Container } from '@mui/material';
 import { AuthProvider, AuthContext } from '../context/AuthContext';

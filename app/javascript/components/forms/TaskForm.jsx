@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { TextField, Button, Container, Typography } from '@mui/material';
+import { TextField, Button, Container, Typography, Dialog, DialogActions, DialogContent, DialogTitle, Alert } from '@mui/material';
+import CategoryForm from './CategoryForm';
 
 const TaskForm = ({ task, categories, tags }) => {
     const [title, setTitle] = useState('');
@@ -9,6 +10,9 @@ const TaskForm = ({ task, categories, tags }) => {
     const [categoryId, setCategoryId] = useState('');
     const [tagIds, setTagIds] = useState([]);
     const [error, setError] = useState('');
+    const [categoryList, setCategoryList] = useState(categories);
+    const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+    const [categoryError, setCategoryError] = useState('');
 
     const navigate = useNavigate();
     const { id } = useParams();
@@ -17,20 +21,16 @@ const TaskForm = ({ task, categories, tags }) => {
         if (task) {
             setTitle(task.title || '');
             setDescription(task.description || '');
-            setDueDate(task.due_date ? task.due_date.split('T')[0] : ''); // Format the date correctly
+            setDueDate(task.due_date ? task.due_date.split('T')[0] : '');
             setCategoryId(task.category_id || '');
             setTagIds(task.tags ? task.tags.map(tag => tag.id) : []);
-        }
-    }, [task]);
-
-    useEffect(() => {
-        if (id && !task) {
+        } else if (id) {
             fetch(`/tasks/${id}.json`)
                 .then(response => response.json())
                 .then(data => {
                     setTitle(data.title || '');
                     setDescription(data.description || '');
-                    setDueDate(data.due_date ? data.due_date.split('T')[0] : ''); // Format the date correctly
+                    setDueDate(data.due_date ? data.due_date.split('T')[0] : '');
                     setCategoryId(data.category_id || '');
                     setTagIds(data.tags ? data.tags.map(tag => tag.id) : []);
                 })
@@ -40,6 +40,10 @@ const TaskForm = ({ task, categories, tags }) => {
                 });
         }
     }, [id, task]);
+
+    useEffect(() => {
+        setCategoryList(categories);
+    }, [categories]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -57,7 +61,6 @@ const TaskForm = ({ task, categories, tags }) => {
         const csrfToken = document.querySelector('[name=csrf-token]').content;
 
         if (id) {
-            // Update task
             fetch(`/tasks/${id}`, {
                 method: 'PUT',
                 headers: {
@@ -79,7 +82,6 @@ const TaskForm = ({ task, categories, tags }) => {
                     setError('Failed to update task.');
                 });
         } else {
-            // Create new task
             fetch('/tasks', {
                 method: 'POST',
                 headers: {
@@ -103,12 +105,31 @@ const TaskForm = ({ task, categories, tags }) => {
         }
     };
 
+    const handleOpenCategoryModal = () => {
+        setIsCategoryModalOpen(true);
+    };
+
+    const handleCloseCategoryModal = () => {
+        setIsCategoryModalOpen(false);
+        setCategoryError(''); // Clear category error when closing modal
+    };
+
+    const handleCategoryCreated = (newCategory) => {
+        setCategoryList([...categoryList, newCategory]);
+        setCategoryId(newCategory.id);
+        setCategoryError('');
+    };
+
+    const handleCategoryError = (errorMessage) => {
+        setCategoryError(errorMessage);
+    };
+
     return (
         <Container>
             <Typography variant="h4" component="h1" gutterBottom>
                 {id ? 'Edit Task' : 'New Task'}
             </Typography>
-            {error && <Typography color="error">{error}</Typography>}
+            {error && <Alert severity="error">{error}</Alert>}
             <form onSubmit={handleSubmit}>
                 <TextField
                     label="Title"
@@ -147,12 +168,16 @@ const TaskForm = ({ task, categories, tags }) => {
                     }}
                 >
                     <option value="" />
-                    {categories.map((category) => (
+                    {categoryList.map((category) => (
                         <option key={category.id} value={category.id}>
                             {category.name}
                         </option>
                     ))}
                 </TextField>
+                {categoryError && <Alert severity="error">{categoryError}</Alert>}
+                <Button variant="contained" color="primary" onClick={handleOpenCategoryModal}>
+                    Add New Category
+                </Button>
                 <TextField
                     label="Tags"
                     fullWidth
@@ -175,6 +200,18 @@ const TaskForm = ({ task, categories, tags }) => {
                     {id ? 'Update Task' : 'Create Task'}
                 </Button>
             </form>
+
+            <Dialog open={isCategoryModalOpen} onClose={handleCloseCategoryModal}>
+                <DialogTitle>Create New Category</DialogTitle>
+                <DialogContent>
+                    <CategoryForm onClose={handleCloseCategoryModal} onCategoryCreated={handleCategoryCreated} onCategoryError={handleCategoryError} />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseCategoryModal} color="primary">
+                        Cancel
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Container>
     );
 };
