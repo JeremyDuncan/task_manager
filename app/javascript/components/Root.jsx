@@ -5,13 +5,17 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import TaskForm from './forms/TaskForm';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { AppBar, Toolbar, Button, Container } from '@mui/material';
+import { AppBar, Toolbar, Button, Container, CircularProgress, Box } from '@mui/material';
 import { AuthProvider, AuthContext } from '../context/AuthContext';
 
 const theme = createTheme();
 
 const PrivateRoute = ({ children }) => {
-    const { isAuthenticated } = useContext(AuthContext);
+    const { isAuthenticated, loading } = useContext(AuthContext);
+
+    if (loading) {
+        return <Box display="flex" justifyContent="center" mt={2}><CircularProgress /></Box>;
+    }
 
     return isAuthenticated ? children : <Navigate to="/login" />;
 };
@@ -80,7 +84,7 @@ const Root = ({ initialTasks = [], initialCategories = [], initialTags = [] }) =
                             <Route path="/tasks" element={<PrivateRoute><TaskList tasks={tasks} /></PrivateRoute>} />
                             <Route path="/tasks/new" element={<PrivateRoute><TaskForm categories={categories} tags={tags} /></PrivateRoute>} />
                             <Route path="/tasks/:id/edit" element={<PrivateRoute><TaskForm categories={categories} tags={tags} /></PrivateRoute>} />
-                            <Route path="/" element={<Login />} /> {/* Default route */}
+                            <Route path="/" element={<Navigate to="/tasks" />} /> {/* Default route */}
                         </Routes>
                     </Container>
                 </Router>

@@ -1,10 +1,10 @@
-// app/javascript/context/AuthContext.js
 import React, { createContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Check if the user is authenticated when the app loads
@@ -20,10 +20,14 @@ const AuthProvider = ({ children }) => {
       .then(data => {
         if (data.user) {
           setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
         }
+        setLoading(false);
       })
       .catch(error => {
         setIsAuthenticated(false);
+        setLoading(false);
       });
   }, []);
 
@@ -55,7 +59,7 @@ const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

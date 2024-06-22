@@ -1,6 +1,6 @@
 class TasksController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_task, only: [:show, :edit, :update, :destroy]
+  before_action :set_task, only: [:show, :update, :destroy]
 
   def index
     @tasks = current_user.tasks
@@ -41,7 +41,11 @@ class TasksController < ApplicationController
   private
 
   def set_task
-    @task = current_user.tasks.find(params[:id])
+    if params[:id].match?(/^\d+$/)
+      @task = current_user.tasks.find(params[:id])
+    else
+      render json: { error: "Invalid ID" }, status: :not_found
+    end
   end
 
   def task_params
