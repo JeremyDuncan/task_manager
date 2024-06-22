@@ -1,14 +1,2 @@
 <%= javascript_pack_tag 'application' %>
-<div id="react-task-list"></div>
-<script>
-    import React from 'react';
-    import ReactDOM from 'react-dom';
-    import TaskList from 'components/TaskList';
-
-    document.addEventListener('DOMContentLoaded', () => {
-        ReactDOM.render(
-            <TaskList />,
-            document.getElementById('react-task-list'),
-        );
-    });
-</script>
+<div id="root" data-tasks="<%= @tasks.to_json %>" data-task="<%= @task.to_json %>" data-categories="<%= @categories.to_json %>" data-tags="<%= @tags.to_json %>"></div>
