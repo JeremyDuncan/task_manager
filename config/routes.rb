@@ -1,15 +1,20 @@
 Rails.application.routes.draw do
-  # Devise routes for user authentication
-  devise_for :users
+  # Devise routes for user authentication, using custom sessions controller
+  devise_for :users, controllers: { sessions: 'users/sessions' }
 
-  # API routes for tasks, categories, and tags
-  namespace :api do
-    resources :tasks, only: [:index, :create, :update, :destroy]
-    resources :categories, only: [:index, :create, :update, :destroy]
-    resources :tags, only: [:index, :create, :update, :destroy]
+  devise_scope :user do
+    get 'users/current', to: 'users/sessions#current'
   end
+
+
+  resources :tasks, only: [:index, :show, :create, :update, :destroy]
+  resources :categories, only: [:index, :create, :update, :destroy]
+  resources :tags, only: [:index, :create, :update, :destroy]
 
   # Catch-all route to render the React app
   root 'home#index'
-  get '*path', to: 'home#index'
+  # get '*path', to: 'home#index'
+    get '*path', to: 'home#index', constraints: lambda { |req|
+      !req.xhr? && req.format.html?
+    }
 end
