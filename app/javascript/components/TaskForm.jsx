@@ -17,7 +17,7 @@ const TaskForm = ({ task, categories, tags }) => {
         if (task) {
             setTitle(task.title || '');
             setDescription(task.description || '');
-            setDueDate(task.due_date || '');
+            setDueDate(task.due_date ? task.due_date.split('T')[0] : ''); // Format the date correctly
             setCategoryId(task.category_id || '');
             setTagIds(task.tags ? task.tags.map(tag => tag.id) : []);
         }
@@ -30,7 +30,7 @@ const TaskForm = ({ task, categories, tags }) => {
                 .then(data => {
                     setTitle(data.title || '');
                     setDescription(data.description || '');
-                    setDueDate(data.due_date || '');
+                    setDueDate(data.due_date ? data.due_date.split('T')[0] : ''); // Format the date correctly
                     setCategoryId(data.category_id || '');
                     setTagIds(data.tags ? data.tags.map(tag => tag.id) : []);
                 })
