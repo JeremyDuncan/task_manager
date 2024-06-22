@@ -202,6 +202,19 @@ const TaskForm = ({ task, categories, tags }) => {
                 <Autocomplete
                     multiple
                     freeSolo
+                    fullWidth
+                    margin="normal"
+                    sx={{
+                        '& .MuiAutocomplete-inputRoot': {
+                            backgroundColor: 'white',
+                            padding: '10px',
+                            borderRadius: '4px',
+                            paddingTop: '25px', // Adjust padding to avoid label overlap
+                        },
+                        '& .MuiInputLabel-filled.MuiInputLabel-shrink': {
+                            transform: 'translate(12px, 12px) scale(0.75)', // Adjust label position
+                        },
+                    }}
                     id="tags-filled"
                     options={tags.map(tag => tag.name)}
                     value={selectedTags.map(tag => tag.name)}
@@ -216,7 +229,12 @@ const TaskForm = ({ task, categories, tags }) => {
                         tagValue.map((option, index) => {
                             const tag = tags.find(tag => tag.name === option) || { name: option };
                             return (
-                                <Chip variant="outlined" label={tag.name} {...getTagProps({ index })} key={tag.name} />
+                                <Chip
+                                    variant="outlined"
+                                    label={tag.name}
+                                    {...getTagProps({ index })}
+                                    key={tag.name}
+                                />
                             );
                         })
                     }
@@ -226,6 +244,8 @@ const TaskForm = ({ task, categories, tags }) => {
                             variant="filled"
                             label="Tags"
                             placeholder="Add tags"
+                            fullWidth
+                            margin="normal"
                         />
                     )}
                 />

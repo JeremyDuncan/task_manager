@@ -17,20 +17,20 @@ const TagForm = ({ onClose, onTagCreated, onTagError }) => {
             },
             body: JSON.stringify({ tag: { name } })
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.errors) {
-                    setError('You already have a tag with this name');
-                    onTagError('You already have a tag with this name');
-                } else {
-                    onTagCreated(data);
-                    onClose();
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => { throw data });
                 }
+                return response.json();
             })
-            .catch(error => {
-                console.error('Error creating tag:', error);
-                setError('Failed to create tag.');
-                onTagError('Failed to create tag.');
+            .then(data => {
+                onTagCreated(data);
+                onClose();
+            })
+            .catch(data => {
+                const errorMessage = data.name ? data.name[0] : 'Failed to create tag.';
+                setError(errorMessage);
+                onTagError(errorMessage);
             });
     };
 
