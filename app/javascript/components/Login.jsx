@@ -1,25 +1,42 @@
 // app/javascript/components/Login.jsx
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useContext } from 'react';
 import { Container, Typography, TextField, Button, Alert } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const navigate = useNavigate();
+    const { login } = useContext(AuthContext);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.post('/users/sign_in', { user: { email, password } })
-            .then(response => {
-                setSuccess('Login successful!');
-                setError('');
-            })
-            .catch(error => {
-                setError('Login failed. Please check your credentials and try again.');
-                setSuccess('');
-            });
+        const form = document.createElement('form');
+        form.action = '/users/sign_in';
+        form.method = 'post';
+        form.style.display = 'none';
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const authenticityToken = document.createElement('input');
+        authenticityToken.name = 'authenticity_token';
+        authenticityToken.value = csrfToken;
+        form.appendChild(authenticityToken);
+
+        const emailInput = document.createElement('input');
+        emailInput.name = 'user[email]';
+        emailInput.value = email;
+        form.appendChild(emailInput);
+
+        const passwordInput = document.createElement('input');
+        passwordInput.name = 'user[password]';
+        passwordInput.value = password;
+        form.appendChild(passwordInput);
+
+        document.body.appendChild(form);
+        form.submit();
     };
 
     return (
