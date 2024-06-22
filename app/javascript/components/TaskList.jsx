@@ -1,5 +1,7 @@
+// app/javascript/components/TaskList.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Container, Typography, List, ListItem, ListItemText } from '@mui/material';
 
 const TaskList = () => {
     const [tasks, setTasks] = useState([]);
@@ -11,14 +13,18 @@ const TaskList = () => {
     }, []);
 
     return (
-        <div>
-            <h1>Task List</h1>
-            <ul>
+        <Container>
+            <Typography variant="h4" component="h1" gutterBottom>
+                Task List
+            </Typography>
+            <List>
                 {tasks.map(task => (
-                    <li key={task.id}>{task.title}</li>
+                    <ListItem key={task.id}>
+                        <ListItemText primary={task.title} />
+                    </ListItem>
                 ))}
-            </ul>
-        </div>
+            </List>
+        </Container>
     );
 };
 
