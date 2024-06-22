@@ -1,0 +1,2 @@
+<%= javascript_pack_tag 'application' %>
+<div id="root" data-tasks="<%= @tasks.to_json %>" data-task="<%= @task.to_json %>" data-categories="<%= @categories.to_json %>" data-tags="<%= @tags.to_json %>"></div>
