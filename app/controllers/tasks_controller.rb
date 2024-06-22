@@ -2,20 +2,20 @@ class TasksController < ApplicationController
   before_action :authenticate_user!
   before_action :set_task, only: [:show, :edit, :update, :destroy]
 
-
   def index
     @tasks = current_user.tasks
     respond_to do |format|
       format.html
-      format.json { render json: @tasks }
+      format.json { render json: @tasks.to_json(include: :tags) }
     end
   end
 
   def show
     respond_to do |format|
-      format.json { render json: @task }
+      format.json { render json: @task.to_json(include: :tags) }
     end
   end
+
   def create
     @task = current_user.tasks.build(task_params)
     if @task.save
@@ -26,7 +26,6 @@ class TasksController < ApplicationController
   end
 
   def update
-    @task = current_user.tasks.find(params[:id])
     if @task.update(task_params)
       render json: @task
     else
@@ -39,8 +38,8 @@ class TasksController < ApplicationController
     head :no_content
   end
 
-
   private
+
   def set_task
     @task = current_user.tasks.find(params[:id])
   end
@@ -49,7 +48,3 @@ class TasksController < ApplicationController
     params.require(:task).permit(:title, :description, :due_date, :category_id, tag_ids: [])
   end
 end
-
-
-
-
